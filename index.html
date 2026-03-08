@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,8 +75,13 @@
             height: 5px;
         }
 
-        .card.mesmerizer::before { background: var(--accent-pink); }
-        .card.shoujoa::before { background: var(--accent-cyan); }
+        .card.mesmerizer::before {
+            background: var(--accent-pink);
+        }
+
+        .card.shoujoa::before {
+            background: var(--accent-cyan);
+        }
 
         .song-title {
             font-size: 1.5rem;
@@ -152,9 +158,17 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
         }
 
         .updating {
@@ -162,6 +176,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>200M VIEWS RACE</h1>
@@ -206,7 +221,7 @@
         function updateDisplay() {
             const now = new Date();
             document.getElementById('current-time').innerText = now.toLocaleString();
-            
+
             // データ (Python版と同じ計算ロジック)
             const songs = [
                 {
@@ -230,18 +245,18 @@
                 const daysElapsed = (now - song.start) / (1000 * 60 * 60 * 24);
                 const viewsGained = song.current - 150000000;
                 const pace = viewsGained / daysElapsed;
-                
+
                 const needed = target - song.current;
                 const daysRemaining = needed / pace;
                 const targetDate = new Date(now.getTime() + (daysRemaining * 24 * 60 * 60 * 1000));
-                
+
                 results.push({
                     id: song.id,
                     targetDate: targetDate,
                     daysRemaining: daysRemaining
                 });
 
-                document.getElementById(`date-${song.id}`).innerText = targetDate.toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) + " " + targetDate.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+                document.getElementById(`date-${song.id}`).innerText = targetDate.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }) + " " + targetDate.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
                 document.getElementById(`days-${song.id}`).innerText = `In approx ${daysRemaining.toFixed(1)} days`;
             });
 
@@ -252,8 +267,14 @@
         }
 
         updateDisplay();
-        // 1分ごとに更新（といっても再生数は静的ですが、時計と日数は更新されます）
+        // 1分ごとに表示更新
         setInterval(updateDisplay, 60000);
+
+        // 20秒ごとにページ自体を再読み込み（新しい情報を取得するためなど）
+        setTimeout(() => {
+            location.reload();
+        }, 20000);
     </script>
 </body>
+
 </html>
