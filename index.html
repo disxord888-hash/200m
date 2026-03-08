@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>200,000,000 Views Tracker</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-main: #c9d1d9;
+            --text-dim: #8b949e;
+            --accent-pink: #ff69b4;
+            --accent-cyan: #00ffff;
+            --accent-green: #3fb950;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            perspective: 1000px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .card.mesmerizer::before { background: var(--accent-pink); }
+        .card.shoujoa::before { background: var(--accent-cyan); }
+
+        .song-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .views-container {
+            margin-bottom: 20px;
+        }
+
+        .views-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .views-count {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .projection-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .projection-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .projection-date {
+            font-size: 1.4rem;
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .days-left {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .winner-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-green);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .is-winner .winner-tag {
+            opacity: 1;
+        }
+
+        .timestamp {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .updating {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>200M VIEWS RACE</h1>
+        <div class="dashboard">
+            <!-- 少女A -->
+            <div id="card-shoujoa" class="card shoujoa">
+                <div class="winner-tag">SOONEST</div>
+                <div class="song-title">少女A</div>
+                <div class="views-container">
+                    <div class="views-label">Current Views</div>
+                    <div id="views-shoujoa" class="views-count">190,970,443</div>
+                </div>
+                <div class="projection-box">
+                    <div class="projection-label">Reached 200M (Forecast)</div>
+                    <div id="date-shoujoa" class="projection-date">2026/05/15</div>
+                    <div id="days-shoujoa" class="days-left">In approx 67 days</div>
+                </div>
+            </div>
+
+            <!-- メズマライザー -->
+            <div id="card-mesmerizer" class="card mesmerizer">
+                <div class="winner-tag">SOONEST</div>
+                <div class="song-title">メズマライザー</div>
+                <div class="views-container">
+                    <div class="views-label">Current Views</div>
+                    <div id="views-mesmerizer" class="views-count">186,933,034</div>
+                </div>
+                <div class="projection-box">
+                    <div class="projection-label">Reached 200M (Forecast)</div>
+                    <div id="date-mesmerizer" class="projection-date">2026/05/25</div>
+                    <div id="days-mesmerizer" class="days-left">In approx 77 days</div>
+                </div>
+            </div>
+        </div>
+        <div class="timestamp">
+            Calculated at: <span id="current-time"></span><br>
+            Based on 1.5M milestone dates (Mesmerizer: 2025/08/02, ShoujoA: 2025/05/08)
+        </div>
+    </div>
+
+    <script>
+        function updateDisplay() {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleString();
+            
+            // データ (Python版と同じ計算ロジック)
+            const songs = [
+                {
+                    id: 'shoujoa',
+                    name: '少女A',
+                    start: new Date('2025/05/08'),
+                    current: 190970443
+                },
+                {
+                    id: 'mesmerizer',
+                    name: 'メズマライザー',
+                    start: new Date('2025/08/02'),
+                    current: 186933034
+                }
+            ];
+
+            const target = 200000000;
+            const results = [];
+
+            songs.forEach(song => {
+                const daysElapsed = (now - song.start) / (1000 * 60 * 60 * 24);
+                const viewsGained = song.current - 150000000;
+                const pace = viewsGained / daysElapsed;
+                
+                const needed = target - song.current;
+                const daysRemaining = needed / pace;
+                const targetDate = new Date(now.getTime() + (daysRemaining * 24 * 60 * 60 * 1000));
+                
+                results.push({
+                    id: song.id,
+                    targetDate: targetDate,
+                    daysRemaining: daysRemaining
+                });
+
+                document.getElementById(`date-${song.id}`).innerText = targetDate.toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}) + " " + targetDate.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+                document.getElementById(`days-${song.id}`).innerText = `In approx ${daysRemaining.toFixed(1)} days`;
+            });
+
+            // どちらが早いか判定
+            const earliest = results.reduce((prev, curr) => (prev.targetDate < curr.targetDate) ? prev : curr);
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('is-winner'));
+            document.getElementById(`card-${earliest.id}`).classList.add('is-winner');
+        }
+
+        updateDisplay();
+        // 1分ごとに更新（といっても再生数は静的ですが、時計と日数は更新されます）
+        setInterval(updateDisplay, 60000);
+    </script>
+</body>
+</html>
