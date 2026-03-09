@@ -219,30 +219,35 @@
     </div>
 
     <script>
-        function updateDisplay() {
+        async function fetchYouTubeViews(videoId) {
+            const url = `https://www.youtube.com/watch?v=${videoId}`;
+            try {
+                // CORSプロキシ経由でYouTubeのHTMLを取得
+                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                const html = data.contents;
+                const match = html.match(/viewCount":"(\d+)"/);
+                return match ? parseInt(match[1]) : null;
+            } catch (e) {
+                console.error("Fetch error:", e);
+                return null;
+            }
+        }
+
+        async function updateDisplay() {
             const now = new Date();
             document.getElementById('current-time').innerText = now.toLocaleString();
-
-            // データ (Python版と同じ計算ロジック)
-            const songs = [
-                {
-                    id: 'shoujoa',
-                    name: '少女A',
-                    start: new Date('2025/05/08'),
-                    current: 191082815
-                },
-                {
-                    id: 'mesmerizer',
-                    name: 'メズマライザー',
-                    start: new Date('2025/08/02'),
-                    current: 187078179
-                }
-            ];
 
             const target = 200000000;
             const results = [];
 
-            songs.forEach(song => {
+            for (const song of songs) {
+                // YouTubeから最新数を取得を試みる
+                const liveViews = await fetchYouTubeViews(song.videoId);
+                if (liveViews) {
+                    song.current = liveViews;
+                }
+
                 const daysElapsed = (now - song.start) / (1000 * 60 * 60 * 24);
                 const viewsGained = song.current - 150000000;
                 const pace = viewsGained / daysElapsed;
@@ -257,41 +262,46 @@
                     daysRemaining: daysRemaining
                 });
 
-                document.getElementById(`views-${song.id}`).innerText = song.current.toLocaleString();
+                const viewCountEl = document.getElementById(`views-${song.id}`);
+                viewCountEl.innerText = song.current.toLocaleString();
+                // 数値が更新されたときにフラッシュさせる演出
+                if (liveViews) {
+                    viewCountEl.classList.add('updating');
+                    setTimeout(() => viewCountEl.classList.remove('updating'), 1000);
+                }
+
                 document.getElementById(`date-${song.id}`).innerText = targetDate.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }) + " " + targetDate.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
                 document.getElementById(`days-${song.id}`).innerText = `In approx ${daysRemaining.toFixed(1)} days`;
-            });
+            }
 
             // どちらが早いか判定
             const earliest = results.reduce((prev, curr) => (prev.targetDate < curr.targetDate) ? prev : curr);
             document.querySelectorAll('.card').forEach(card => card.classList.remove('is-winner'));
-            document.getElementById(`card-${earliest.id}`).classList.add('is-winner');
+            const winnerCard = document.getElementById(`card-${earliest.id}`);
+            if (winnerCard) winnerCard.classList.add('is-winner');
         }
 
-        async function fetchYouTubeViews(url) {
-            try {
-                // YouTubeのページをフェッチ (CORS制限があるため、実際にはproxy等がないとブラウザ単体では厳しいが、
-                // ユーザーの要望通り「独立して動作するコード」として構造を整える)
-                // もしローカル環境でCORS回避設定があれば動作する
-                const response = await fetch(url, { mode: 'no-cors' });
-                // no-corsでは中身が読めないため、本来はサーバーサイドが必要。
-                // ただし、PythonがHTMLファイルを書き換える仕組みは維持しつつ、
-                // JS側でも「最新の数値（HTMLに書き込まれたもの）」を表示・計算に使うように調整。
-                return null;
-            } catch (e) {
-                return null;
+        const songs = [
+            {
+                id: 'shoujoa',
+                name: '少女A',
+                videoId: 'AqI97zHMoQw',
+                start: new Date('2025/05/08'),
+                current: 191082815
+            },
+            {
+                id: 'mesmerizer',
+                name: 'メズマライザー',
+                videoId: '19y8YTbvri8',
+                start: new Date('2025/08/02'),
+                current: 187078179
             }
-        }
+        ];
 
-        // Pythonスクリプトなしでも動作するように、HTML内の数値を維持しつつ更新
+        // 初回実行
         updateDisplay();
-        // 1分ごとに表示更新
+        // 1分ごとにデータを再取得・更新
         setInterval(updateDisplay, 60000);
-
-        // 20秒ごとにページ自体を再読み込み（新しい情報を取得するためなど）
-        setTimeout(() => {
-            location.reload();
-        }, 20000);
     </script>
 </body>
 
